@@ -1,9 +1,9 @@
-$navbar-default-bg: #299a0b;
-$navbar-default-link-active-bg: #DFE0DF;
+$navbar-default-bg: #3498db;
+$navbar-default-link-active-bg: rgba(255,255,255,.2);
 $navbar-default-border: 1px solid #d4d4d4;
-$navbar-default-color: #ffffff;
-$navbar-default-link-color: #ffffff;
-$navbar-default-link-hover-color: #000000;
+$navbar-default-color: rgba(255,255,255,.8);
+$navbar-default-link-color: rgba(255,255,255,.8);
+$navbar-default-link-hover-color: #fff;
 
 @import 'bootstrap-datetimepicker';
 @import "bootstrap-sprockets";
