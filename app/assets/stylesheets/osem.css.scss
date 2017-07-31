@@ -8,6 +8,7 @@ body {
   margin-bottom: 60px;
   /* Margin bottom by navbar height */
   padding-top: 60px;
+  font-family: Montserrat,"Helvetica Neue",Helvetica,Arial,sans-serif;
 }
 
 #content {
@@ -93,4 +94,11 @@ p.comment-body {
 
 .box{
   height: 230px;
+}
+
+.well {
+  background-color: transparent;
+  border: 1px solid #ccc;
+  border-radius: 0;
+  box-shadow: 0 0 0 2px #ccc inset;
 }

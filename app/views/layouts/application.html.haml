@@ -5,6 +5,7 @@
     %title= content_for?(:title) ? yield(:title) : (ENV['OSEM_NAME'] || 'OSEM')
     %meta{content: '', name: 'description'}
     %meta{content: '', name: 'author'}
+    %link{href: 'https://fonts.lug.ustc.edu.cn/css?family=Montserrat', rel: 'stylesheet'}
     = stylesheet_link_tag "application", media: 'all'
     = javascript_include_tag "application"
 
@@ -41,6 +42,6 @@
             =link_to "MIT license.", "http://opensource.org/licenses/MIT"
             You can run, copy, distribute, study, change and improve it.
             The source code and the developers are on
-            =link_to "github.", "https://github.com/openSUSE/osem"
+            =link_to "github.", "https://github.com/teamhola/osem"
     = content_for(:script_body)
     = piwik_tracking_tag
