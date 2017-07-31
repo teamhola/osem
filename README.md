@@ -8,6 +8,9 @@
 # Open Source Event Manager
 ![OSEM Logo](https://cdn.brandisty.com/img?id=570f6dc39c992b6b6700000a&format=png&w=300&h=89)
 
+> This is Team ¡Hola!'s fork of OSEM. Thanks to OpenSUSE and other OSEM contributions!
+> We're using a fork because we need some China-specific adjustments.
+
 An event management tool tailored to Free and Open Source Software conferences.
 
 OSEM actively participates in [GSoC](https://summerofcode.withgoogle.com/) and [RGSoC](https://railsgirlssummerofcode.org/).
