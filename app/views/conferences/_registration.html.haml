@@ -9,22 +9,23 @@
 
       - if @conference.registration_limit_exceeded?
         %p
-          Sorry, the conference registration limit has exceeded
+          对不起，活动已经满员了。
       - else
         - if @conference.tickets.empty?
           %p.lead
-            Going to
+            参加
             = @conference.short_title
-            is free of charge.
+            是免费的。
           %p
-            We only ask you to register yourself until
+            但我们希望您在
             = @conference.registration_period.end_date.strftime('%A, %B %-d. %Y')
-            so we can plan for the right amount of people.
+            之前注册以便我们确定活动规模。
             %p.cta-button
         - else
           %p
-            The registration period ends on
+            注册将于
             = @conference.registration_period.end_date.strftime('%A, %B %-d. %Y')
+            关闭。
           %p.cta-button
         = link_to(new_conference_conference_registration_path(@conference.short_title), class: 'btn btn-lg btn-success') do
-          Register Now
+          立即注册

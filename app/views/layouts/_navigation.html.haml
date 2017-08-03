@@ -51,11 +51,11 @@
             %li{class: "#{active_nav_li(new_registration_path('user'))}"}
               = link_to(new_registration_path('user')) do
                 %span.fa.fa-heart
-                Sign Up
+                注册
           %li.dropdown.visible-desktop
             %a.dropdown-toggle{"data-toggle" => "dropdown", href: '#'}
               %span.fa.fa-user
-              Sign In
+              登录
               %span.caret
             .dropdown-menu
               - if ENV['OSEM_ICHAIN_ENABLED'] == 'true'
@@ -65,13 +65,13 @@
                   %button.btn.btn-success.btn-block Sign in
               - else
                 = form_tag new_user_session_path do
-                  = text_field_tag 'user[login]', nil, id: 'user_login_dd', class: 'form-control', placeholder: 'Username / E-Mail'
-                  = password_field_tag 'user[password]', nil, id: 'user_password_dd', class: 'form-control', placeholder: 'Password'
+                  = text_field_tag 'user[login]', nil, id: 'user_login_dd', class: 'form-control', placeholder: '用户名 / E-Mail'
+                  = password_field_tag 'user[password]', nil, id: 'user_password_dd', class: 'form-control', placeholder: '密码'
                   %p.text-right
                     %small
-                      %label{for: 'user_remember_me'} Remember me
+                      %label{for: 'user_remember_me'} 记住我
                       = check_box_tag 'user[remember_me]'
-                  %button.btn.btn-success.btn-block Sign in
+                  %button.btn.btn-success.btn-block 登录
                   - unless omniauth_configured.empty?
                     .divider
                     %h6.text-center

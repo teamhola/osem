@@ -6,21 +6,21 @@
 %li
   = link_to(edit_user_path(current_user.id)) do
     %span.fa.fa-user
-    Edit Profile
+    修改我的信息
 -if @conference and @conference.program
   %li
     = link_to(conference_program_proposals_path(@conference.short_title)) do
       %span.fa.fa-comment
-      My Submissions
+      我的提交
 %li
   - if ENV['OSEM_ICHAIN_ENABLED'] == 'true'
     = link_to(destroy_user_ichain_session_path, method: 'delete') do
       %span.fa.fa-minus
-      Sign out
+      退出登录
   - else
     = link_to(destroy_user_session_path, method: 'delete') do
       %span.fa.fa-minus
-      Sign out
+      退出登录
 - if can? :access, Admin
   %li.divider
     %li
