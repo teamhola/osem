@@ -64,5 +64,8 @@ module Osem
     # like in other Active Record callbacks.
     config.active_record.raise_in_transactional_callbacks = true
     config.active_job.queue_adapter = :delayed_job
+
+    # Set to Chinese.
+    config.i18n.default_locale = :zh_CN
   end
 end
