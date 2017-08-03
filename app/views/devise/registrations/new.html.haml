@@ -4,16 +4,16 @@
       .panel.panel-default
         .panel-heading
           %h3.panel-title
-            Sign Up
+            注册
         .panel-body
           = semantic_form_for(resource, as: resource_name, url: registration_path(resource_name)) do |f|
-            = f.input :username, input_html: { required: true }, hint: 'This is how the other users see you, not your real name'
+            = f.input :username, input_html: { required: true }, label: '用户名', hint: '这是别的用户看见的名字，也是登录用户名。'
             = f.input :email, input_html: { required: true }
-            = f.input :name, input_html: { required: true }, hint: 'This is your real name'
-            = f.input :password, input_html: { required: true }
-            = f.input :password_confirmation, input_html: { required: true }
+            = f.input :name, input_html: { required: true }, label: '真实姓名', hint: '请务必填写您的真实姓名。不正确的信息将可能导致您被拒绝入场。'
+            = f.input :password, input_html: { required: true }, label: '密码'
+            = f.input :password_confirmation, input_html: { required: true }, label: '确认密码'
             %p.text-right
-              = f.action :submit, as: :button, label: 'Sign Up', button_html: { class: 'btn btn-success' }
+              = f.action :submit, as: :button, label: '注册', button_html: { class: 'btn btn-success' }
 
           = render partial: 'devise/shared/openid'
           = render partial: 'devise/shared/help'
