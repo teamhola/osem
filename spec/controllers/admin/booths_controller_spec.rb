@@ -126,23 +126,5 @@ describe Admin::BoothsController do
         end
       end
     end
-
-    describe 'DELETE #destroy' do
-      context 'deletes successfully' do
-        before { delete :destroy, id: booth.id, conference_id: conference.short_title }
-
-        it 'booth deleted' do
-          expect(Booth.count).to eq(0)
-        end
-
-        it 'redirects to admin booth index path' do
-          expect(response).to redirect_to(admin_conference_booths_path)
-        end
-
-        it 'show success message' do
-          expect(flash[:notice]).to match('Booth successfully destroyed.')
-        end
-      end
-    end
   end
 end

@@ -41,7 +41,6 @@ Osem::Application.routes.draw do
         member do
           patch :accept
           patch :restart
-          patch :withdrawn
           patch :to_accept
           patch :reject
           patch :reset
@@ -70,6 +69,13 @@ Osem::Application.routes.draw do
         resources :tracks do
           member do
             patch :toggle_cfp_inclusion
+            patch :restart
+            patch :to_accept
+            patch :accept
+            patch :confirm
+            patch :to_reject
+            patch :reject
+            patch :cancel
           end
         end
         resources :event_types
@@ -131,6 +137,13 @@ Osem::Application.routes.draw do
   end
   resources :organizations, only: [:index]
   resources :conferences, only: [:index, :show] do
+    resources :booths do
+      member do
+        patch :withdraw
+        patch :confirm
+        patch :restart
+      end
+    end
     resource :program, only: [] do
       resources :proposals, except: :destroy do
         get 'commercials/render_commercial' => 'commercials#render_commercial'
@@ -143,7 +156,13 @@ Osem::Application.routes.draw do
           patch '/restart' => 'proposals#restart'
         end
       end
-      resources :tracks, except: :destroy
+      resources :tracks, except: :destroy do
+        member do
+          patch :restart
+          patch :confirm
+          patch :withdraw
+        end
+      end
     end
 
     # TODO: change conference_registrations to singular resource

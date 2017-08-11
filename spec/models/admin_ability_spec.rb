@@ -44,7 +44,7 @@ describe 'User with admin role' do
     let!(:my_event_schedule) { create(:event_schedule, schedule: my_schedule) }
     let!(:other_event_schedule) { create(:event_schedule, schedule: other_schedule) }
 
-    let!(:my_self_organized_track) { create(:track, :self_organized, program: my_conference.program) }
+    let!(:my_self_organized_track) { create(:track, :self_organized, program: my_conference.program, state: 'confirmed') }
 
     context 'user #is_admin?' do
       let(:venue) { my_conference.venue }
@@ -79,7 +79,7 @@ describe 'User with admin role' do
       context 'accesses track organizers' do
         before :each do
           other_self_organized_track = create(:track, :self_organized)
-          @other_track_organizer_role = Role.find_by(name: 'track_organizer', resource: other_self_organized_track)
+          @other_track_organizer_role = Role.where(name: 'track_organizer', resource: other_self_organized_track).first_or_create
         end
 
         it{ should_not be_able_to(:toggle_user, @other_track_organizer_role) }
@@ -105,7 +105,7 @@ describe 'User with admin role' do
 
       context 'accesses track organizers' do
         before :each do
-          @track_organizer_role = Role.find_by(name: 'track_organizer', resource: my_self_organized_track)
+          @track_organizer_role = Role.where(name: 'track_organizer', resource: my_self_organized_track).first_or_create
         end
 
         if role_name == 'track_organizer'
@@ -223,7 +223,7 @@ describe 'User with admin role' do
 
       context 'can manage track organizers' do
         before :each do
-          @track_organizer_role = Role.find_by(name: 'track_organizer', resource: my_self_organized_track)
+          @track_organizer_role = Role.where(name: 'track_organizer', resource: my_self_organized_track).first_or_create
         end
 
         it{ should be_able_to(:toggle_user, @track_organizer_role) }
@@ -441,7 +441,8 @@ describe 'User with admin role' do
     end
 
     context 'when user has the role track_organizer' do
-      let(:role) { Role.find_by(name: 'track_organizer', resource: my_self_organized_track) }
+
+      let(:role) { Role.where(name: 'track_organizer', resource: my_self_organized_track).first_or_create }
       let(:user) { create(:user, role_ids: [role.id]) }
       let(:new_track) { build(:track, program: my_conference.program) }
 
@@ -504,6 +505,8 @@ describe 'User with admin role' do
       it{ should be_able_to(:show, my_conference.program) }
       it{ should be_able_to(:update, new_track) }
       it{ should be_able_to(:manage, my_self_organized_track) }
+      it{ should_not be_able_to(:edit, my_self_organized_track) }
+      it{ should_not be_able_to(:update, my_self_organized_track) }
 
       it_behaves_like 'user with any role'
       it_behaves_like 'user with non-organizer role', 'track_organizer'
