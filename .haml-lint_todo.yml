@@ -118,6 +118,7 @@ linters:
       - "app/views/conference_registrations/_registration_info.html.haml"
       - "app/views/conference_registrations/_volunteer.html.haml"
       - "app/views/conference_registrations/show.html.haml"
+      - "app/views/conferences/_booths.html.haml"
       - "app/views/conferences/_call_for_paper.html.haml"
       - "app/views/conferences/_conference_details.html.haml"
       - "app/views/conferences/_gallery.html.haml"
@@ -303,6 +304,7 @@ linters:
   SpaceInsideHashAttributes:
     exclude:
       - "app/views/admin/conferences/_todo_list.html.haml"
+      - "app/views/admin/emails/index.html.haml"
       - "app/views/admin/questions/_form.html.haml"
       - "app/views/admin/questions/index.html.haml"
       - "app/views/admin/registrations/index.html.haml"
@@ -403,6 +405,7 @@ linters:
   # Offense count: 14
   ConsecutiveSilentScripts:
     exclude:
+      - "app/views/admin/booths/_change_state_dropdown.html.haml"
       - "app/views/admin/events/index.html.haml"
       - "app/views/admin/schedules/_day_tab.html.haml"
       - "app/views/admin/schedules/_event.html.haml"

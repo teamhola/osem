@@ -205,6 +205,12 @@ ActiveRecord::Schema.define(version: 20170807092805) do
     t.string   "cfp_dates_updated_subject"
     t.text     "program_schedule_public_body"
     t.text     "cfp_dates_updated_body"
+    t.boolean  "send_on_booths_acceptance",                     default: false
+    t.string   "booths_acceptance_subject"
+    t.text     "booths_acceptance_body"
+    t.boolean  "send_on_booths_rejection",                      default: false
+    t.string   "booths_rejection_subject"
+    t.text     "booths_rejection_body"
   end
 
   create_table "event_schedules", force: :cascade do |t|
@@ -445,6 +451,7 @@ ActiveRecord::Schema.define(version: 20170807092805) do
     t.datetime "created_at"
     t.datetime "updated_at"
     t.boolean  "include_cfp",               default: false
+    t.boolean  "include_booths"
   end
 
   create_table "sponsors", force: :cascade do |t|

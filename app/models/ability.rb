@@ -75,7 +75,9 @@ class Ability
     can [:new, :create], Payment, user_id: user.id
     can [:index, :show], PhysicalTicket, user: user
 
-    can [:new, :create], Booth
+    can [:new, :create], Booth do |booth|
+      booth.new_record? && booth.conference.program.cfps.for_booths.try(:open?)
+    end
 
     can [:edit, :update, :index, :show], Booth do |booth|
       booth.users.include?(user)
@@ -87,7 +89,7 @@ class Ability
       event.program.cfp_open? && event.new_record?
     end
 
-    can [:update, :show, :delete, :index], Event do |event|
+    can [:update, :show, :index], Event do |event|
       event.users.include?(user)
     end
 
