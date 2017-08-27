@@ -7,7 +7,9 @@ class Track < ActiveRecord::Base
   belongs_to :program
   belongs_to :submitter, class_name: 'User'
   belongs_to :room
+  belongs_to :selected_schedule, class_name: 'Schedule'
   has_many :events, dependent: :nullify
+  has_many :schedules
 
   has_paper_trail ignore: [:updated_at], meta: { conference_id: :conference_id }
 
@@ -31,11 +33,14 @@ class Track < ActiveRecord::Base
   validates :description, presence: true, if: :self_organized?
   validate :valid_dates
   validate :valid_room, if: :self_organized_and_accepted_or_confirmed?
+  validate :overlapping
 
   before_validation :capitalize_color
 
+  scope :accepted, -> { where(state: 'accepted') }
   scope :confirmed, -> { where(state: 'confirmed') }
   scope :cfp_active, -> { where(cfp_active: true) }
+  scope :self_organized, -> { where.not(submitter: nil) }
 
   state_machine initial: :pending do
     state :new
@@ -100,7 +105,10 @@ class Track < ActiveRecord::Base
     submitter.add_role 'track_organizer', self
   end
 
-  # Revokes the track organizer role and removes the track from events that have it set
+  ##
+  # Revokes the track organizer role, destroys the track's schedule, removes the
+  # track from events that have it set and reverts their state to new
+  #
   def revoke_role_and_cleanup
     role = Role.find_by(name: 'track_organizer', resource: self)
 
@@ -110,8 +118,14 @@ class Track < ActiveRecord::Base
       end
     end
 
+    self.selected_schedule_id = nil
+    save!
+
+    schedules.each(&:destroy!)
+
     events.each do |event|
       event.track = nil
+      event.state = 'new'
       event.save!
     end
   end
@@ -207,6 +221,22 @@ class Track < ActiveRecord::Base
   def valid_room
     if room && room.venue && room.venue.conference && program && program.conference && (program.conference != room.venue.conference)
       errors.add(:room, "must be a room of #{program.conference.venue.name}")
+    end
+  end
+
+  ##
+  # Check that there is no other track in the same room with overlapping dates
+  def overlapping
+    return unless start_date && end_date && room && program.try(:tracks)
+    (program.tracks.accepted + program.tracks.confirmed - [self]).each do |other_track|
+      if other_track.room == room &&
+         other_track.start_date && other_track.end_date &&
+         (other_track.start_date <= start_date && other_track.end_date >= start_date ||
+         other_track.start_date <= end_date && other_track.end_date >= end_date ||
+         start_date <= other_track.start_date && other_track.end_date <= end_date)
+        errors.add(:track, 'has overlapping dates with a confirmed or accepted track in the same room')
+        break
+      end
     end
   end
 end

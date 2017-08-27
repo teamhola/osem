@@ -9,7 +9,9 @@ describe Track do
     it { is_expected.to belong_to(:program) }
     it { is_expected.to belong_to(:submitter).class_name('User') }
     it { is_expected.to belong_to(:room) }
+    it { is_expected.to belong_to(:selected_schedule).class_name('Schedule') }
     it { is_expected.to have_many(:events) }
+    it { is_expected.to have_many(:schedules) }
   end
 
   describe 'validation' do
@@ -136,9 +138,97 @@ describe Track do
         end
       end
     end
+
+    describe '#overlapping' do
+      before :each do
+        @conference = create(:conference, start_date: Date.current - 1.day, end_date: Date.current + 2.days)
+        @conference.venue = create(:venue)
+        @room = create(:room, venue: @conference.venue)
+      end
+
+      context 'is valid' do
+        it 'when the tracks are in different rooms at the same time' do
+          other_room = create(:room, venue: @conference.venue)
+          create(:track, :self_organized, state: 'confirmed', program: @conference.program, room: other_room, start_date: Date.current, end_date: Date.current)
+          track = build(:track, :self_organized, program: @conference.program, room: @room, start_date: Date.current, end_date: Date.current)
+          expect(track.valid?).to eq true
+        end
+
+        it 'when it ends before the other tracks in the same room' do
+          create(:track, :self_organized, state: 'confirmed', program: @conference.program, room: @room, start_date: Date.current, end_date: Date.current)
+          track = build(:track, :self_organized, program: @conference.program, room: @room, start_date: Date.current - 1.day, end_date: Date.current - 1.day)
+          expect(track.valid?).to eq true
+        end
+
+        it 'when it starts after the other tracks in the same room' do
+          create(:track, :self_organized, state: 'confirmed', program: @conference.program, room: @room, start_date: Date.current, end_date: Date.current)
+          track = build(:track, :self_organized, program: @conference.program, room: @room, start_date: Date.current + 1.day, end_date: Date.current + 1.day)
+          expect(track.valid?).to eq true
+        end
+      end
+
+      context 'is invalid' do
+        it 'when it starts and/or ends with another track in the same room' do
+          create(:track, :self_organized, state: 'confirmed', program: @conference.program, room: @room, start_date: Date.current, end_date: Date.current)
+          track = build(:track, :self_organized, program: @conference.program, room: @room, start_date: Date.current, end_date: Date.current)
+          expect(track.valid?).to eq false
+          expect(track.errors[:track]).to eq ['has overlapping dates with a confirmed or accepted track in the same room']
+        end
+
+        it 'when it starts before another track and ends after the other starts and before it ends' do
+          create(:track, :self_organized, state: 'confirmed', program: @conference.program, room: @room, start_date: Date.current, end_date: Date.current + 2.days)
+          track = build(:track, :self_organized, program: @conference.program, room: @room, start_date: Date.current - 1.day, end_date: Date.current + 1.day)
+          expect(track.valid?).to eq false
+          expect(track.errors[:track]).to eq ['has overlapping dates with a confirmed or accepted track in the same room']
+        end
+
+        it 'when it starts after another track and before it ends and ends after the other' do
+          create(:track, :self_organized, state: 'confirmed', program: @conference.program, room: @room, start_date: Date.current, end_date: Date.current + 2.days)
+          track = build(:track, :self_organized, program: @conference.program, room: @room, start_date: Date.current + 1.day, end_date: Date.current + 3.days)
+          expect(track.valid?).to eq false
+          expect(track.errors[:track]).to eq ['has overlapping dates with a confirmed or accepted track in the same room']
+        end
+
+        it 'when it starts after another track and ends before the other' do
+          create(:track, :self_organized, state: 'confirmed', program: @conference.program, room: @room, start_date: Date.current, end_date: Date.current + 2.days)
+          track = build(:track, :self_organized, program: @conference.program, room: @room, start_date: Date.current + 1.day, end_date: Date.current + 1.day)
+          expect(track.valid?).to eq false
+          expect(track.errors[:track]).to eq ['has overlapping dates with a confirmed or accepted track in the same room']
+        end
+
+        it 'when it starts before another track and ends after the other' do
+          create(:track, :self_organized, state: 'confirmed', program: @conference.program, room: @room, start_date: Date.current, end_date: Date.current)
+          track = build(:track, :self_organized, program: @conference.program, room: @room, start_date: Date.current - 1.day, end_date: Date.current + 1.day)
+          expect(track.valid?).to eq false
+          expect(track.errors[:track]).to eq ['has overlapping dates with a confirmed or accepted track in the same room']
+        end
+      end
+    end
   end
 
   describe 'scope' do
+    describe '#accepted' do
+      before :each do
+        @program = create(:program)
+      end
+
+      context 'includes' do
+        it 'when track is accepted' do
+          accepted_track = create(:track, state: 'accepted', program: @program)
+          expect(@program.tracks.accepted.include?(accepted_track)).to eq true
+        end
+      end
+
+      context 'excludes' do
+        %w[new to_accept confirmed to_reject rejected canceled withdrawn].each do |state|
+          it "when track is #{state.humanize}" do
+            not_accepted_track = create(:track, state: state, program: @program)
+            expect(@program.tracks.accepted.include?(not_accepted_track)).to eq false
+          end
+        end
+      end
+    end
+
     describe '#confirmed' do
       before :each do
         @program = create(:program)
@@ -174,6 +264,24 @@ describe Track do
 
       it 'excludes tracks with the cfp_active flag disabled' do
         expect(@program.tracks.cfp_active.include?(@non_cfp_active_track)).to eq false
+      end
+    end
+
+    describe '#self_organized' do
+      before :each do
+        @program = create(:program)
+        track.program = @program
+        track.save!
+        self_organized_track.program = @program
+        self_organized_track.save!
+      end
+
+      it 'includes self-organized tracks' do
+        expect(@program.tracks.self_organized.include?(self_organized_track)).to eq true
+      end
+
+      it 'excludes regular tracks' do
+        expect(@program.tracks.self_organized.include?(track)).to eq false
       end
     end
   end
@@ -246,7 +354,8 @@ describe Track do
       self_organized_track.cfp_active = true
       self_organized_track.save!
       @a_track_organizer.add_role 'track_organizer', self_organized_track
-      @an_event_of_the_track = create(:event, program: self_organized_track.program, track: self_organized_track)
+      @event_of_self_organized_track = create(:event, program: self_organized_track.program, track: self_organized_track, state: 'confirmed')
+      @schedule_of_self_organized_track = create(:schedule, program: self_organized_track.program, track: self_organized_track)
     end
 
     it 'revokes the role of the track organizer' do
@@ -255,11 +364,24 @@ describe Track do
       expect(@a_track_organizer.has_role?(:track_organizer, self_organized_track)).to eq false
     end
 
-    it 'removes the track from the events that have it set' do
-      expect(@an_event_of_the_track.track).to eq self_organized_track
+    it 'destroys the track\'s schedules' do
+      expect(Schedule.find(@schedule_of_self_organized_track.id)).to eq @schedule_of_self_organized_track
       self_organized_track.revoke_role_and_cleanup
-      @an_event_of_the_track.reload
-      expect(@an_event_of_the_track.track).to eq nil
+      expect(Schedule.find_by(id: @schedule_of_self_organized_track.id)).to eq nil
+    end
+
+    it 'removes the track from the events that have it set' do
+      expect(@event_of_self_organized_track.track).to eq self_organized_track
+      self_organized_track.revoke_role_and_cleanup
+      @event_of_self_organized_track.reload
+      expect(@event_of_self_organized_track.track).to eq nil
+    end
+
+    it 'sets the state of the track\'s events to new' do
+      expect(@event_of_self_organized_track.state).to eq 'confirmed'
+      self_organized_track.revoke_role_and_cleanup
+      @event_of_self_organized_track.reload
+      expect(@event_of_self_organized_track.state).to eq 'new'
     end
 
     it 'is executed when the track is canceled' do
@@ -267,15 +389,15 @@ describe Track do
       self_organized_track.save!
       self_organized_track.cancel
       expect(@a_track_organizer.has_role?(:track_organizer, self_organized_track)).to eq false
-      @an_event_of_the_track.reload
-      expect(@an_event_of_the_track.track).to eq nil
+      @event_of_self_organized_track.reload
+      expect(@event_of_self_organized_track.track).to eq nil
     end
 
     it 'is executed when the track is withdrawn' do
       self_organized_track.withdraw
       expect(@a_track_organizer.has_role?(:track_organizer, self_organized_track)).to eq false
-      @an_event_of_the_track.reload
-      expect(@an_event_of_the_track.track).to eq nil
+      @event_of_self_organized_track.reload
+      expect(@event_of_self_organized_track.track).to eq nil
     end
   end
 

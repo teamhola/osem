@@ -11,6 +11,8 @@ linters:
   # Offense count: 945
   LineLength:
     exclude:
+      - "app/views/admin/booths/_change_state_dropdown.html.haml"
+      - "app/views/admin/booths/_form.html.haml"
       - "app/views/admin/booths/index.html.haml"
       - "app/views/admin/booths/show.html.haml"
       - "app/views/admin/campaigns/_form.html.haml"
@@ -76,6 +78,7 @@ linters:
       - "app/views/admin/resources/show.html.haml"
       - "app/views/admin/roles/_form.html.haml"
       - "app/views/admin/roles/_users.html.haml"
+      - "app/views/admin/roles/_users_with_org_admin_role.haml"
       - "app/views/admin/roles/index.html.haml"
       - "app/views/admin/roles/show.html.haml"
       - "app/views/admin/rooms/_form.html.haml"
@@ -150,6 +153,7 @@ linters:
       - "app/views/layouts/_admin_sidebar_index.html.haml"
       - "app/views/layouts/_messages.html.haml"
       - "app/views/layouts/_navigation.html.haml"
+      - "app/views/layouts/_user_menu.html.haml"
       - "app/views/layouts/application.html.haml"
       - "app/views/organizations/index.html.haml"
       - "app/views/payments/_payment.html.haml"
@@ -184,6 +188,7 @@ linters:
       - "app/views/conferences/_call_for_tracks.html.haml"
       - "app/views/admin/tracks/_change_state_dropdown.html.haml"
       - "app/views/proposals/_encouragement_text.html.haml"
+      - "app/views/admin/schedules/_form.html.haml"
 
   # Offense count: 223
   InstanceVariables:
@@ -249,6 +254,7 @@ linters:
       - "app/views/admin/cfps/_tracks_cfp.html.haml"
       - "app/views/conferences/_call_for_tracks.html.haml"
       - "app/views/admin/tracks/_change_state_dropdown.html.haml"
+      - "app/views/admin/schedules/_form.html.haml"
 
   # Offense count: 32
   IdNames:
